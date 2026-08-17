@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Moq;
+using TODO.Database.AccessLayer.Services;
 using TODO.Database.AccessLayer.Services.Implementations;
 using TODO.Database.Models.Core;
 using TODO.Database.Models.Static;
@@ -44,8 +45,8 @@ namespace Test.TODO.Database.AccessLayer.Services
             service.AddItem(CreateTodo("A"));
             service.AddItem(CreateTodo("B"));
 
-            var ex = Assert.Throws<InvalidOperationException>(() => service.AddItem(CreateTodo("C")));
-            Assert.That(ex!.Message, Is.EqualTo("Todo List full."));
+            var ex = Assert.Throws<TodoListFullException>(() => service.AddItem(CreateTodo("C")));
+            Assert.That(ex!.MaxAllowedItems, Is.EqualTo(2));
         }
 
         // Falls back to the default capacity when the config value is missing.
@@ -99,17 +100,21 @@ namespace Test.TODO.Database.AccessLayer.Services
             Assert.That(stored!.CreatedAt, Is.InRange(before, after));
         }
 
-        // Overwrites the existing item when the title is duplicated.
+        // Throws DuplicateTitleException when the title is duplicated.
         [Test]
-        public void AddItem_OverwritesExistingItem_WhenTitleDuplicated()
+        public void AddItem_Throws_WhenTitleDuplicated()
         {
             var service = CreateService();
             service.AddItem(CreateTodo("Dup", description: "first"));
-            service.AddItem(CreateTodo("Dup", description: "second"));
+
+            var ex = Assert.Throws<DuplicateTitleException>(
+                () => service.AddItem(CreateTodo("Dup", description: "second")));
+
+            Assert.That(ex!.Title, Is.EqualTo("Dup"));
 
             var all = service.GetAll().ToList();
             Assert.That(all, Has.Count.EqualTo(1));
-            Assert.That(all[0].Description, Is.EqualTo("second"));
+            Assert.That(all[0].Description, Is.EqualTo("first"));
         }
 
         // Throws InvalidOperationException when capacity is reached.
@@ -119,8 +124,8 @@ namespace Test.TODO.Database.AccessLayer.Services
             var service = CreateService(maxAllowedItems: 1);
             service.AddItem(CreateTodo("Only"));
 
-            var ex = Assert.Throws<InvalidOperationException>(() => service.AddItem(CreateTodo("Overflow")));
-            Assert.That(ex!.Message, Is.EqualTo("Todo List full."));
+            var ex = Assert.Throws<TodoListFullException>(() => service.AddItem(CreateTodo("Overflow")));
+            Assert.That(ex!.MaxAllowedItems, Is.EqualTo(1));
         }
         #endregion
 
@@ -217,6 +222,26 @@ namespace Test.TODO.Database.AccessLayer.Services
             {
                 Assert.That(service.GetItem("New Title"), Is.Not.Null, "Item should be retrievable by its new title.");
                 Assert.That(service.GetItem("Old Title"), Is.Null, "Item should no longer be retrievable by its old title.");
+            });
+        }
+
+        // Overwrites an existing target item when an item is renamed to that title.
+        [Test]
+        public void UpdateItem_RenamingToExistingTitle_OverwritesTarget()
+        {
+            var service = CreateService();
+            service.AddItem(CreateTodo("Source", description: "source"));
+            service.AddItem(CreateTodo("Target", description: "target"));
+
+            var updated = service.UpdateItem("Source", CreateTodo("Target", description: "renamed"));
+
+            Assert.That(updated, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(service.GetItem("Source"), Is.Null, "Old title should be removed after rename.");
+                Assert.That(service.GetItem("Target"), Is.Not.Null);
+                Assert.That(service.GetItem("Target")!.Description, Is.EqualTo("renamed"), "Target should be overwritten by the renamed item.");
+                Assert.That(service.GetAll().Count(), Is.EqualTo(1), "Only the renamed item should remain.");
             });
         }
         #endregion

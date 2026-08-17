@@ -84,6 +84,7 @@ namespace TODO.Backend.API.Controllers
         /// </param>
         /// <returns>The newly created TODO item.</returns>
         /// <response code="201">The TODO item was created.</response>
+        /// <response code="409">A TODO item with the same title already exists.</response>
         /// <response code="400">The TODO item could not be created.</response>
         [HttpPost]
         [EndpointSummary("Create a TODO item")]
@@ -91,9 +92,19 @@ namespace TODO.Backend.API.Controllers
         {
             try
             {
-                var id = _tODOListService.AddItem(value);
+                var title = _tODOListService.AddItem(value);
                 _logger.LogInformation("Created TODO item with title {Title}.", value.Title);
-                return CreatedAtAction(nameof(Get), new { id }, value);
+                return CreatedAtAction(nameof(Get), new { title }, value);
+            }
+            catch (DuplicateTitleException ex)
+            {
+                _logger.LogWarning(ex, "A TODO item with title {Title} already exists.", value.Title);
+                return Conflict(new { error = ex.Message });
+            }
+            catch (TodoListFullException ex)
+            {
+                _logger.LogWarning(ex, "Could not create TODO item with title {Title} because the list is full.", value.Title);
+                return BadRequest(new { error = ex.Message });
             }
             catch (InvalidOperationException ex)
             {
@@ -109,21 +120,24 @@ namespace TODO.Backend.API.Controllers
         /// <param name="value" example='{"title":"Buy groceries","description":"Buy milk, coffee, and bread","category":"Shopping","priority":"Medium","isCompleted":true}'>
         /// The updated TODO item.
         /// </param>
+        /// <returns>The updated TODO item.</returns>
+        /// <response code="200">The TODO item was updated.</response>
+        /// <response code="404">A TODO item with the supplied title was not found.</response>
         [HttpPut("{title}")]
         [EndpointSummary("Update a TODO item")]
-        public void Put(string title, [FromBody] TODOList value)
+        public IActionResult Put(string title, [FromBody] TODOList value)
         {
             _logger.LogDebug("Updating TODO item with title {Title}.", title);
-            var itemToUpdate = _tODOListService.UpdateItem(title, value);
-            
-            if (itemToUpdate is null)
+            var updatedItem = _tODOListService.UpdateItem(title, value);
+
+            if (updatedItem is null)
             {
                 _logger.LogWarning("TODO item with title {Title} was not found.", title);
+                return NotFound();
             }
-            else
-            {
-                _logger.LogInformation("Updated TODO item with title {Title}.", title);
-            }
+
+            _logger.LogInformation("Updated TODO item with title {Title}.", title);
+            return Ok(updatedItem);
         }
 
         /// <summary>
@@ -140,13 +154,15 @@ namespace TODO.Backend.API.Controllers
             _logger.LogDebug("Marking TODO item with title {Title} as completed.", title);
             var todo = _tODOListService.GetItem(title);
 
-            if (!todo?.IsCompleted ?? false)
-                todo = _tODOListService.ToggleStatus(title);
-
             if (todo is null)
             {
                 _logger.LogWarning("TODO item with title {Title} was not found.", title);
                 return NotFound();
+            }
+
+            if (!todo.IsCompleted)
+            {
+                todo = _tODOListService.ToggleStatus(title);
             }
 
             _logger.LogInformation("TODO item with title {Title} is marked as completed.", title);
@@ -167,13 +183,15 @@ namespace TODO.Backend.API.Controllers
             _logger.LogDebug("Marking TODO item with title {Title} as incomplete.", title);
             var todo = _tODOListService.GetItem(title);
 
-            if (todo?.IsCompleted ?? false)
-                todo = _tODOListService.ToggleStatus(title);
-
             if (todo is null)
             {
                 _logger.LogWarning("TODO item with title {Title} was not found.", title);
                 return NotFound();
+            }
+
+            if (todo.IsCompleted)
+            {
+                todo = _tODOListService.ToggleStatus(title);
             }
 
             _logger.LogInformation("TODO item with title {Title} is marked as incomplete.", title);
@@ -212,18 +230,11 @@ namespace TODO.Backend.API.Controllers
         /// </example>
         /// </returns>
         /// <response code="200">All completed TODO items were removed.</response>
-        /// <response code="400">The completed TODO items could not be removed.</response>
         [HttpPost("[action]")]
         [EndpointSummary("Clear all completed TODO items")]
         public IActionResult ClearCompleted()
         {
-            bool result = _tODOListService.ClearCompleted();
-
-            if (!result)
-            {
-                _logger.LogWarning("Failed to clear completed TODO items.");
-                return BadRequest(new { message = "Failed to clear completed tasks." });
-            }
+            _tODOListService.ClearCompleted();
 
             _logger.LogInformation("Cleared all completed TODO items.");
             return Ok(new { message = "Completed tasks cleared." });

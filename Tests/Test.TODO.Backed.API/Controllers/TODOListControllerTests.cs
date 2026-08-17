@@ -130,9 +130,29 @@ public class TODOListControllerTests
         Assert.Multiple(() =>
         {
             Assert.That(createdResult!.ActionName, Is.EqualTo(nameof(TODOListController.Get)));
-            Assert.That(createdResult.RouteValues!["id"], Is.EqualTo(todo.Title));
+            Assert.That(createdResult.RouteValues!["title"], Is.EqualTo(todo.Title));
             Assert.That(createdResult.Value, Is.SameAs(todo));
         });
+        _serviceMock.Verify(service => service.AddItem(todo), Times.Once);
+    }
+
+    // Verifies that a duplicate title is translated into an HTTP 409 response.
+    [Test]
+    public void Create_DuplicateTitle_ReturnsConflictWithError()
+    {
+        // Arrange
+        var todo = CreateTodo();
+        var exception = new DuplicateTitleException(todo.Title);
+        _serviceMock
+            .Setup(service => service.AddItem(todo))
+            .Throws(exception);
+
+        // Act
+        var result = _controller.Create(todo);
+
+        // Assert
+        Assert.That(result, Is.TypeOf<ConflictObjectResult>());
+        Assert.That(GetResponseProperty(result, "error"), Is.EqualTo(exception.Message));
         _serviceMock.Verify(service => service.AddItem(todo), Times.Once);
     }
 
@@ -142,17 +162,17 @@ public class TODOListControllerTests
     {
         // Arrange
         var todo = CreateTodo();
-        const string error = "Todo List full.";
+        var exception = new TodoListFullException(5000);
         _serviceMock
             .Setup(service => service.AddItem(todo))
-            .Throws(new InvalidOperationException(error));
+            .Throws(exception);
 
         // Act
         var result = _controller.Create(todo);
 
         // Assert
         Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
-        Assert.That(GetResponseProperty(result, "error"), Is.EqualTo(error));
+        Assert.That(GetResponseProperty(result, "error"), Is.EqualTo(exception.Message));
         _serviceMock.Verify(service => service.AddItem(todo), Times.Once);
     }
     #endregion
@@ -170,15 +190,18 @@ public class TODOListControllerTests
             .Returns(updatedTodo);
 
         // Act
-        _controller.Put(title, updatedTodo);
+        var result = _controller.Put(title, updatedTodo);
 
         // Assert
+        var okResult = result as OkObjectResult;
+        Assert.That(okResult, Is.Not.Null);
+        Assert.That(okResult!.Value, Is.SameAs(updatedTodo));
         _serviceMock.Verify(service => service.UpdateItem(title, updatedTodo), Times.Once);
     }
 
-    // Verifies that PUT safely completes when the requested item is missing.
+    // Verifies that PUT returns HTTP 404 when the requested item is missing.
     [Test]
-    public void Put_TitleDoesNotExist_DelegatesUpdateToService()
+    public void Put_TitleDoesNotExist_ReturnsNotFound()
     {
         // Arrange
         const string title = "Missing item";
@@ -188,9 +211,10 @@ public class TODOListControllerTests
             .Returns((TODOList?)null);
 
         // Act
-        _controller.Put(title, updatedTodo);
+        var result = _controller.Put(title, updatedTodo);
 
         // Assert
+        Assert.That(result, Is.TypeOf<NotFoundResult>());
         _serviceMock.Verify(service => service.UpdateItem(title, updatedTodo), Times.Once);
     }
     #endregion
@@ -357,24 +381,6 @@ public class TODOListControllerTests
         Assert.That(
             GetResponseProperty(result, "message"),
             Is.EqualTo("Completed tasks cleared."));
-        _serviceMock.Verify(service => service.ClearCompleted(), Times.Once);
-    }
-
-    // Verifies that a failed cleanup returns HTTP 400 and its failure message.
-    [Test]
-    public void ClearCompleted_ServiceFails_ReturnsBadRequestWithMessage()
-    {
-        // Arrange
-        _serviceMock.Setup(service => service.ClearCompleted()).Returns(false);
-
-        // Act
-        var result = _controller.ClearCompleted();
-
-        // Assert
-        Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
-        Assert.That(
-            GetResponseProperty(result, "message"),
-            Is.EqualTo("Failed to clear completed tasks."));
         _serviceMock.Verify(service => service.ClearCompleted(), Times.Once);
     }
     #endregion

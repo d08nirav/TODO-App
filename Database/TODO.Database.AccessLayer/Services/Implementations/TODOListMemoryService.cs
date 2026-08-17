@@ -34,12 +34,17 @@ namespace TODO.Database.AccessLayer.Services.Implementations
         {
             if (_todos.Count >= _maxAllowedItems)
             {
-                throw new InvalidOperationException("Todo List full.");
+                throw new TodoListFullException(_maxAllowedItems);
             }
 
             var item = tODOListItem;
             item.CreatedAt = DateTime.UtcNow;
-            _todos[item.Title] = item;
+
+            if (!_todos.TryAdd(item.Title, item))
+            {
+                throw new DuplicateTitleException(item.Title);
+            }
+
             return item.Title;
         }
         public TODOList? UpdateItem(string title, TODOList updatedItem)
