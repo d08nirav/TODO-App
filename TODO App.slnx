@@ -7,6 +7,7 @@
     <Project Path="Database/TODO.Database.Models/TODO.Database.Models.csproj" Id="1ee07ff3-81dc-4e17-aaeb-98bc06f42c8c" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="Tests/Test.TODO.Backed.API/Test.TODO.Backed.API.csproj" Id="87592e9f-4041-43d3-ac90-2cfb74aa3366" />
     <Project Path="Tests/Test.TODO.Database.AccessLayer/Test.TODO.Database.AccessLayer.csproj" />
   </Folder>
 </Solution>
