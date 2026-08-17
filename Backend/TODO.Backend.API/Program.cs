@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Http.Json;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
+using TODO.Database.AccessLayer.Services;
+using TODO.Database.AccessLayer.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddControllers();
+builder.Services.AddSingleton<ITODOListService, TODOListMemoryService>();
 
 // 1. Force JSON serialization to use strings for enums
 builder.Services.Configure<JsonOptions>(options =>
@@ -14,7 +15,7 @@ builder.Services.Configure<JsonOptions>(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-// For Controller-based APIs, apply it to AddControllers as well
+// For Controller-based APIs, apply it to AddControllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -27,7 +28,10 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 app.MapOpenApi();
-app.MapScalarApiReference();
+app.MapScalarApiReference(options =>
+{
+    options.OperationTitleSource = OperationTitleSource.Summary;
+});
 app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
 app.UseHttpsRedirection();
