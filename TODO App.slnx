@@ -6,4 +6,7 @@
     <Project Path="Database/TODO.Database.AccessLayer/TODO.Database.AccessLayer.csproj" Id="c1130b36-61dd-4afa-9275-723983b03025" />
     <Project Path="Database/TODO.Database.Models/TODO.Database.Models.csproj" Id="1ee07ff3-81dc-4e17-aaeb-98bc06f42c8c" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Test.TODO.Database.AccessLayer/Test.TODO.Database.AccessLayer.csproj" />
+  </Folder>
 </Solution>
