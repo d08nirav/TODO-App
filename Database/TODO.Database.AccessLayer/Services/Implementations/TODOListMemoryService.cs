@@ -52,6 +52,12 @@ namespace TODO.Database.AccessLayer.Services.Implementations
                 item.Category = updatedItem.Category;
                 item.Priority = updatedItem.Priority;
                 item.IsCompleted = updatedItem.IsCompleted;
+
+                if (!string.Equals(title, item.Title, StringComparison.Ordinal))
+                {
+                    _todos.TryRemove(title, out _);
+                }
+                _todos[item.Title] = item;
                 return item;
             }
             return null;
