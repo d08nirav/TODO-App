@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 
-namespace TODO.Backend.API.Models
+namespace TODO.Database.Models.Static
 {
+    [JsonConverter(typeof(JsonStringEnumConverter<Category>))]
     public enum Category : byte
     {
         // Default value for Category is None (0)

@@ -1,24 +1,24 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
+using TODO.Database.Models.Static;
 
-namespace TODO.Backend.API.Models
+namespace TODO.Database.Models.Core
 {
     public class TODOList
     {
-        [JsonIgnore]
-        public long Id { get; set; }
 
         public required string Title { get; set; }
 
         public string? Description { get; set; }
 
-        public byte? CategoryId { get; set; }
-
         public Category Category { get; set; }
 
         public Priority Priority { get; set; }
 
+        [DefaultValue(false)]
         public bool IsCompleted { get; set; }
 
+        [JsonIgnore]
         public DateTime CreatedAt { get; set; }
     }
 }

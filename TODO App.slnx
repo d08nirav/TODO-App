@@ -2,4 +2,7 @@
   <Folder Name="/Backend/">
     <Project Path="Backend/TODO.Backend.API/TODO.Backend.API.csproj" />
   </Folder>
+  <Folder Name="/Database/">
+    <Project Path="Database/TODO.Database.Models/TODO.Database.Models.csproj" Id="1ee07ff3-81dc-4e17-aaeb-98bc06f42c8c" />
+  </Folder>
 </Solution>

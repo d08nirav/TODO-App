@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 
-namespace TODO.Backend.API.Models
+namespace TODO.Database.Models.Static
 {
+    [JsonConverter(typeof(JsonStringEnumConverter<Priority>))]
     public enum Priority : byte
     {
         [Description("None")]
