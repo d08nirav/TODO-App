@@ -1,0 +1,132 @@
+.page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.page__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.page__title {
+  margin: 0;
+  font-size: 1.75rem;
+  color: var(--color-text);
+}
+
+.page__subtitle {
+  margin: 0;
+  color: var(--color-muted-text);
+}
+
+.summary {
+  display: flex;
+  gap: var(--space-3);
+  margin: var(--space-2) 0 0;
+}
+
+.summary__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 4.5rem;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.summary__item dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-muted-text);
+}
+
+.summary__item dd {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  min-width:min-content;
+}
+
+.list-card {
+  padding: 0;
+}
+
+.list-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list__row + .list__row {
+  border-top: 1px solid var(--color-border);
+}
+
+.placeholder {
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+  color: var(--color-muted-text);
+}
+
+.placeholder--error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-danger);
+}
+
+.status {
+  margin: 0;
+  min-height: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.status:empty {
+  display: none;
+}
+
+.status--success {
+  color: var(--color-success);
+}
+
+.status--error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius);
+}
+
+@media (max-width: 32rem) {
+  .summary {
+    flex-wrap: wrap;
+  }
+}

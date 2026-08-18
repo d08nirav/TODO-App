@@ -1,0 +1,80 @@
+<main class="page">
+  <header class="page__header">
+    <h1 class="page__title">Todo List</h1>
+    <p class="page__subtitle">Keep track of what needs doing.</p>
+
+    <dl class="summary" aria-label="Task summary">
+      <div class="summary__item">
+        <dt>Total</dt>
+        <dd>{{ total() }}</dd>
+      </div>
+      <div class="summary__item">
+        <dt>Remaining</dt>
+        <dd>{{ remainingCount() }}</dd>
+      </div>
+      <div class="summary__item">
+        <dt>Completed</dt>
+        <dd>{{ completedCount() }}</dd>
+      </div>
+    </dl>
+  </header>
+
+  <section class="card" aria-label="Add a new task">
+    <app-todo-form [submitting]="creating()" (create)="createTodo($event)" />
+  </section>
+
+  <!-- Status + error live regions -->
+  <p class="status status--success" role="status" aria-live="polite">
+    {{ statusMessage() }}
+  </p>
+
+  @if (errorMessage()) {
+    <div class="status status--error" role="alert">
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="btn btn--ghost" (click)="dismissError()">Dismiss</button>
+    </div>
+  }
+
+  <section class="card list-card" aria-label="Task list">
+    @if (initialLoading()) {
+      <p class="placeholder" role="status" aria-live="polite">Loading tasks…</p>
+    } @else if (loadFailed()) {
+      <div class="placeholder placeholder--error">
+        <p>We couldn't load your tasks.</p>
+        <button type="button" class="btn btn--primary" (click)="load()">Retry</button>
+      </div>
+    } @else if (total() === 0) {
+      <p class="placeholder">No tasks yet. Add your first one above.</p>
+    } @else {
+      <div class="list-toolbar">
+        <button type="button" class="btn btn--ghost" [disabled]="refreshing()" (click)="refresh()">
+          {{ refreshing() ? 'Refreshing…' : 'Refresh' }}
+        </button>
+        <button
+          type="button"
+          class="btn btn--ghost"
+          [disabled]="clearing() || !hasCompleted()"
+          (click)="clearCompleted()"
+        >
+          {{ clearing() ? 'Clearing…' : 'Clear completed' }}
+        </button>
+      </div>
+
+      <ul class="list">
+        @for (todo of todos(); track trackByTitle($index, todo)) {
+          <li class="list__row">
+            <app-todo-item
+              [todo]="todo"
+              [toggling]="isToggling(todo.title)"
+              [updating]="isUpdating(todo.title)"
+              [deleting]="isDeleting(todo.title)"
+              (toggle)="toggleTodo(todo.title, $event)"
+              (save)="saveTodo($event)"
+              (remove)="deleteTodo($event)"
+            />
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</main>
