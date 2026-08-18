@@ -1,0 +1,57 @@
+<form class="todo-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="field field--grow">
+    <label class="field__label" for="new-title">Title</label>
+    <input id="new-title"
+           type="text"
+           formControlName="title"
+           placeholder="What needs to be done?"
+           autocomplete="off"
+           [maxlength]="maxTitleLength"
+           [attr.aria-invalid]="showTitleErrors ? 'true' : null"
+           [attr.aria-describedby]="showTitleErrors ? 'new-title-error' : null" />
+    @if (showTitleErrors) {
+    <p id="new-title-error" class="field__error" role="alert">
+      @if (titleControl.hasError('required') || titleControl.hasError('whitespace')) {
+      Please enter a title.
+      } @else if (titleControl.hasError('maxlength')) {
+      Title must be {{ maxTitleLength }} characters or fewer.
+      }
+    </p>
+    }
+  </div>
+
+  <div class="field">
+    <label class="field__label" for="new-category">Category</label>
+    <select id="new-category" formControlName="category">
+      @for (option of categories; track option) {
+      <option [value]="option">{{ option }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="field">
+    <label class="field__label" for="new-priority">Priority</label>
+    <select id="new-priority" formControlName="priority">
+      @for (option of priorities; track option) {
+      <option [value]="option">{{ option }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="field field--grow">
+    <label class="field__label" for="new-description">Description <span class="field__optional">(optional)</span></label>
+    <textarea id="new-description"              
+           type="text"
+           formControlName="description"
+           placeholder="Add more detail"
+           autocomplete="off"
+           [maxlength]="maxDescriptionLength"
+           rows="2"></textarea>
+  </div>
+
+  <div class="field field--action">
+    <button type="submit" class="btn btn--primary" [disabled]="submitting()">
+      {{ submitting() ? 'Adding…' : 'Add task' }}
+    </button>
+  </div>
+</form>

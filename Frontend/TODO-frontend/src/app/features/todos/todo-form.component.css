@@ -1,0 +1,60 @@
+.todo-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-start;
+  min-width: 30rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 8rem;
+}
+
+.field--grow {
+  flex: 1 1 12rem;
+}
+
+.field--action {
+  align-self: self-end;
+  justify-content: flex-end;
+}
+
+.field__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted-text);
+}
+
+.field__optional {
+  font-weight: 400;
+}
+
+.field__error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-danger);
+}
+
+input,
+textarea,
+select {
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+input,
+textarea [aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.field--action .btn {
+  height: 100%;
+  min-height: 2.75rem;
+}
