@@ -38,6 +38,12 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
+*.tsbuildinfo
+
+# Environment / local secrets
+.env
+.env.*
+!.env.example
 
 # System files
 .DS_Store
