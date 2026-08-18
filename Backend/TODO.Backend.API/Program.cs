@@ -18,6 +18,18 @@ builder.Services.AddControllers()
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// Allow the locally running Angular UI to call this API.
+const string AngularDevCorsPolicy = "AngularDevCorsPolicy";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(AngularDevCorsPolicy, policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 app.MapOpenApi();
@@ -28,6 +40,8 @@ app.MapScalarApiReference(options =>
 app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
 app.UseHttpsRedirection();
+
+app.UseCors(AngularDevCorsPolicy);
 
 app.MapControllers();
 
