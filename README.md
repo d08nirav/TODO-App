@@ -6,9 +6,9 @@ A full-stack TODO application built with an **ASP.NET Core (.NET 10) Web API** b
 
 Make sure the following are installed before running the projects:
 
--[.NET SDK] 10.0 or later
--[Node.js] 20.x or later (LTS)
--[Angular CLI] 22.x
+- [.NET SDK] 10.0 or later
+- [Node.js] 20.x or later (LTS)
+- [Angular CLI] 22.x
 
 ## Running the Backend (API)
 
