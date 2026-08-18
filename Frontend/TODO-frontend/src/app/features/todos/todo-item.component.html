@@ -1,0 +1,122 @@
+@if (!editing()) {
+  <div class="item" [class.item--completed]="todo().isCompleted">
+    <input
+      class="item__checkbox"
+      type="checkbox"
+      [checked]="todo().isCompleted"
+      [disabled]="toggling()"
+      (change)="onToggle($event)"
+      [attr.aria-label]="
+        (todo().isCompleted ? 'Mark as incomplete: ' : 'Mark as complete: ') + todo().title
+      "
+    />
+
+    <div class="item__body">
+      <p class="item__title">
+        <span class="item__title-text">{{ todo().title }}</span>
+        @if (todo().isCompleted) {
+          <span class="item__status" aria-hidden="true">✓ Done</span>
+          <span class="visually-hidden">(completed)</span>
+        }
+      </p>
+      @if (todo().description) {
+        <p class="item__description">{{ todo().description }}</p>
+      }
+      <p class="item__meta">
+        <span class="badge">{{ todo().category }}</span>
+        <span class="badge">{{ todo().priority }}</span>
+      </p>
+    </div>
+
+    <div class="item__actions">
+      <button
+        #editButton
+        type="button"
+        class="btn btn--ghost"
+        [disabled]="busy()"
+        (click)="startEdit()"
+      >
+        Edit
+      </button>
+      <button
+        type="button"
+        class="btn btn--danger"
+        [disabled]="deleting()"
+        (click)="confirmDelete()"
+      >
+        {{ deleting() ? 'Deleting…' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+} @else {
+  <form
+    class="edit"
+    [formGroup]="editForm"
+    (ngSubmit)="saveEdit()"
+    (keydown.escape)="cancelEdit()"
+    novalidate
+  >
+    <div class="edit__row">
+      <div class="field field--grow">
+        <label class="field__label" [attr.for]="'edit-title-' + todo().title">Title</label>
+        <input
+          #editTitle
+          [id]="'edit-title-' + todo().title"
+          type="text"
+          formControlName="title"
+          autocomplete="off"
+          [maxlength]="maxTitleLength"
+          [attr.aria-invalid]="showTitleErrors ? 'true' : null"
+          [attr.aria-describedby]="showTitleErrors ? 'edit-title-error-' + todo().title : null"
+        />
+        @if (showTitleErrors) {
+          <p [id]="'edit-title-error-' + todo().title" class="field__error" role="alert">
+            @if (titleControl.hasError('required') || titleControl.hasError('whitespace')) {
+              Please enter a title.
+            } @else if (titleControl.hasError('maxlength')) {
+              Title must be {{ maxTitleLength }} characters or fewer.
+            }
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="edit__row">
+      <div class="field field--grow">
+        <label class="field__label" [attr.for]="'edit-desc-' + todo().title">Description</label>
+        <input
+          [id]="'edit-desc-' + todo().title"
+          type="text"
+          formControlName="description"
+          autocomplete="off"
+          [maxlength]="maxDescriptionLength"
+        />
+      </div>
+      <div class="field">
+        <label class="field__label" [attr.for]="'edit-cat-' + todo().title">Category</label>
+        <select [id]="'edit-cat-' + todo().title" formControlName="category">
+          @for (option of categories; track option) {
+            <option [value]="option">{{ option }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label class="field__label" [attr.for]="'edit-pri-' + todo().title">Priority</label>
+        <select [id]="'edit-pri-' + todo().title" formControlName="priority">
+          @for (option of priorities; track option) {
+            <option [value]="option">{{ option }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="edit__actions">
+      <button type="submit" class="btn btn--primary" [disabled]="updating()">
+        {{ updating() ? 'Saving…' : 'Save' }}
+      </button>
+      <button type="button" class="btn btn--ghost" [disabled]="updating()" (click)="cancelEdit()">
+        Cancel
+      </button>
+    </div>
+  </form>
+}
