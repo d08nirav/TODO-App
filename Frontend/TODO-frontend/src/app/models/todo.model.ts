@@ -13,6 +13,7 @@ export interface Todo {
   description: string | null;
   category: Category;
   priority: Priority;
+  createdAt: Date;
   isCompleted: boolean;
 }
 

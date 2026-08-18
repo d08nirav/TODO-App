@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Text.Json.Serialization;
 using TODO.Database.Models.Static;
 
 namespace TODO.Database.Models.Core
@@ -18,7 +17,7 @@ namespace TODO.Database.Models.Core
         [DefaultValue(false)]
         public bool IsCompleted { get; set; }
 
-        [JsonIgnore]
+        [ReadOnly(true)]
         public DateTime CreatedAt { get; set; }
     }
 }

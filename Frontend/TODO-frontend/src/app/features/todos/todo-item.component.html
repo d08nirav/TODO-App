@@ -15,17 +15,22 @@
       <p class="item__title">
         <span class="item__title-text">{{ todo().title }}</span>
         @if (todo().isCompleted) {
-          <span class="item__status" aria-hidden="true">✓ Done</span>
+          <span class="item__status" aria-hidden="true"> Done</span>
           <span class="visually-hidden">(completed)</span>
         }
       </p>
       @if (todo().description) {
         <p class="item__description">{{ todo().description }}</p>
       }
-      <p class="item__meta">
-        <span class="badge">{{ todo().category }}</span>
-        <span class="badge">{{ todo().priority }}</span>
-      </p>
+        <p class="item__meta">
+          <span class="badge"> {{ todo().createdAt | date: 'dd/MM/yyyy HH:mm:ss a' }}</span>
+          @if (todo().category != "None") {
+          <span class="badge">Category: {{ todo().category }}</span>
+          }
+          @if (todo().priority != "None") {
+          <span class="badge">Priority: {{ todo().priority }}</span>
+          }
+        </p>
     </div>
 
     <div class="item__actions">

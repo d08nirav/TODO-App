@@ -10,6 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 import {
@@ -43,7 +44,7 @@ export interface TodoEditRequest {
 @Component({
   selector: 'app-todo-item',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DatePipe],
   templateUrl: './todo-item.component.html',
   styleUrls: ['./todo-item.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
