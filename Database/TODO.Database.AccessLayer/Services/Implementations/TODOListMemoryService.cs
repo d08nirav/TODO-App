@@ -30,7 +30,7 @@ namespace TODO.Database.AccessLayer.Services.Implementations
             return _todos.Values.OrderByDescending(t => t.CreatedAt);
         }
 
-        public string AddItem(TODOList tODOListItem)
+        public TODOList AddItem(TODOList tODOListItem)
         {
             if (_todos.Count >= _maxAllowedItems)
             {
@@ -45,7 +45,7 @@ namespace TODO.Database.AccessLayer.Services.Implementations
                 throw new DuplicateTitleException(item.Title);
             }
 
-            return item.Title;
+            return item;
         }
         public TODOList? UpdateItem(string title, TODOList updatedItem)
         {

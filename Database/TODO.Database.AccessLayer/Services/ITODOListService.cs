@@ -6,7 +6,7 @@ namespace TODO.Database.AccessLayer.Services
     {
         TODOList? GetItem(string title);
         IEnumerable<TODOList> GetAll();
-        string AddItem(TODOList tODOListItem);
+        TODOList AddItem(TODOList tODOListItem);
         TODOList? UpdateItem(string title, TODOList updatedItem);
         TODOList? ToggleStatus(string title);
         bool DeleteItem(string title);

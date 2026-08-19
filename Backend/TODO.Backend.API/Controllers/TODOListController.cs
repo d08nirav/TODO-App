@@ -92,9 +92,9 @@ namespace TODO.Backend.API.Controllers
         {
             try
             {
-                var title = _tODOListService.AddItem(value);
+                var tODOList = _tODOListService.AddItem(value);
                 _logger.LogInformation("Created TODO item with title {Title}.", value.Title);
-                return CreatedAtAction(nameof(Get), new { title }, value);
+                return CreatedAtAction(nameof(Get), new { title = tODOList.Title }, tODOList);
             }
             catch (DuplicateTitleException ex)
             {
